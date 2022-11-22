@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "Notifications"
+version = "0.1.0"
+description = "Mailing service"
+authors = ["Dmitrii Vorobev <vdr03@yandex.ru>"]
+
+[tool.poetry.dependencies]
+python = "^2.7"
+celery = "4.4.7"
+psycopg2-binary = "2.8.6"
+Django = "^1.11"
+django-ckeditor = "^5.6"
+django-extensions = "^2.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
