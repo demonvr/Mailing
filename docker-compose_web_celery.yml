@@ -1,0 +1,75 @@
+version: '3.5'
+
+services:
+  web:
+    container_name: notifications_web
+    build: .
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:8000'
+    volumes:
+      - ./notifications/:/usr/src/app/
+      - ./logs/:/logs/
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  db:
+    container_name: notification_db
+    image: postgres:13-alpine
+    volumes:
+      - pgdata_notifications:/var/lib/postgresql/data/pgdata
+    environment:
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+
+  rabbit:
+    container_name: notification_rabbit
+    image: rabbitmq:3.10-management
+    environment:
+      RABBITMQ_DEFAULT_USER: $RABBIT_USERNAME
+      RABBITMQ_DEFAULT_PASS: $RABBIT_PASSWORD
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  celery-beat:
+    container_name: notification_beat
+    build: .
+    env_file:
+      - ./.env
+    environment:
+      CELERY_BROKER_URL: amqp://$RABBIT_USERNAME:$RABBIT_PASSWORD@rabbit:$RABBIT_PORT
+    command: celery -A notifications beat -l INFO
+    volumes:
+      - ./logs/:/logs/
+    depends_on:
+      - db
+      - rabbit
+
+  celery:
+    container_name: notification_worker
+    build: .
+    env_file:
+      - ./.env
+    environment:
+      CELERY_BROKER_URL: amqp://$RABBIT_USERNAME:$RABBIT_PASSWORD@rabbit:$RABBIT_PORT
+    command: celery -A notifications worker -B -l INFO --concurrency 1
+    volumes:
+      - ./logs/:/logs/
+    depends_on:
+      - db
+      - rabbit
+
+volumes:
+  pgdata_notifications:
+
+

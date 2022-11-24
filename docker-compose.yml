@@ -1,0 +1,38 @@
+version: '3.5'
+
+services:
+  db:
+    container_name: notification_db
+    image: postgres:13-alpine
+    volumes:
+      - pgdata_notifications:/var/lib/postgresql/data/pgdata
+    environment:
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+
+  rabbit:
+    container_name: notification_rabbit
+    image: rabbitmq:3.10-management
+    environment:
+      RABBITMQ_DEFAULT_USER: $RABBIT_USERNAME
+      RABBITMQ_DEFAULT_PASS: $RABBIT_PASSWORD
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'
+    ports:
+      - 1025:1025
+      - 8025:8025
+
+volumes:
+  pgdata_notifications:
+
+
