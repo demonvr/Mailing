@@ -16,6 +16,9 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from app_notifications import views
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^wh/', views.ImageOutputView.as_view(), name='image_output')
 ]

@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 Django settings for notifications project.
 
@@ -131,6 +132,8 @@ STATIC_ROOT = 'static'
 
 CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 
+SITE_URL = 'http://localhost:8000'
+
 # Celery settings
 RABBIT_HOST = os.environ.get("RABBIT_HOST", "localhost")
 RABBIT_PORT = os.environ.get("RABBIT_PORT", 5672)
@@ -150,4 +153,22 @@ CELERY_ACCEPT_CONTENT = [
 ]
 CELERY_TIMEZONE = "Europe/Moscow"
 BROKER_URL = CELERY_BROKER_URL
+CELERY_BEAT_SCHEDULE = {
+    "send_message": {
+        "task": "tasks.send_message",
+        "schedule": crontab(minute="*/10"),  # каждые 10 минут
+    },
+}
 
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_HOST_PASSWORD = 'VihpGLSrn6vUSuq'
+EMAIL_HOST_USER = 'testvorobyov'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+FROM_EMAIL = 'testvorobyov@yandex.ru'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = '127.0.0.1'
+# EMAIL_PORT = 1025
